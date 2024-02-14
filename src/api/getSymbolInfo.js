@@ -1,0 +1,21 @@
+/**
+ * @typedef {import("bybit-api").SpotInstrumentInfoV5 | import("bybit-api").LinearInverseInstrumentInfoV5 | import("bybit-api").OptionInstrumentInfoV5} InstrumentInfo
+ */
+
+/**
+ * Returns the symbol instruments info
+ * @param {import("bybit-api").RestClientV5} client   ByBIT Client
+ * @param {string}                           category Category of the account
+ * @param {string}                           symbol   Pair symbol
+ * @returns {InstrumentInfo}                 the symbol info
+ */
+async function getSymbolInfo(client, category, symbol) {
+  const response = await client.getInstrumentsInfo({ category, symbol });
+
+  if (response.retCode !== 0) return new Error("GetSymbolInfoError");
+
+  const info = response.result.list[0];
+
+  return info;
+}
+module.exports = getSymbolInfo;
