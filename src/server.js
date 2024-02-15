@@ -1,41 +1,61 @@
 const http   = require("http");
 const BotApi = require("./api/index.js");
 
-// TODO: tipizzare come si deve
 /**
  * Retrieve "OK" if the server still running
- * @param {http.IncomingMessage} req 
- * @param {http.ServerResponse}  res 
+ * @param {http.IncomingMessage} req Request
+ * @param {http.ServerResponse}  res Server response
  */
-function handleGetHealtCheck({ client, req, res }) {
+function handleGetHealtCheck(req, res) {
   res.statusCode = 200;
   res.end("OK");
 }
 
-// TODO: tipizzare come si deve
+/**
+ * Handle the Tradingview alert for the strategy "BB + RSI | Trailing SL"
+ * @param {object} payload Request payload
+ * @param {BotApi} api     Api to interact with ByBIT
+ */
+async function bbPlusRsiStrategy(payload, api) {
+  if (payload.isExit) {
+    return api.closeLastPosition(payload);
+  }
+
+  return api.openTrade(payload);
+}
+
+const strategies = {
+  "BB + RSI": bbPlusRsiStrategy,
+};
+
 /**
  * Webhook to handle the Tradingview alerts
- * @param {http.IncomingMessage} req 
- * @param {http.ServerResponse}  res 
+ * @param {http.IncomingMessage} req Request
+ * @param {http.ServerResponse}  res Server response
+ * @param {BotApi}               api Api to interact with ByBIT
  */
-async function handleWebhook({ client, req, res }) {
-  // EXAMPLE (ovviamente non funziona e manco risponde al chiamante)
-  const { result: wallet } = await client.getWalletBalance({
-    accountType: "CONTRACT",
-    coin       : "USDT",
-  });
-  console.log("Wallet: ", wallet.list);
+async function handleWebhook(req, res, api) {
+  // TODO: payload validation
+  const payload = JSON.parse(req.body);
 
-  // TODO: terminare
-  // creare handler apposito per ogni strategia, così che venga richiamato quello corretto qui
-  client.submitOrder({
-    category : "linear",
-    symbol   : "BTCUSDT", // da req.body
-    orderType: "Market",
-    qty      : "?",       // da req.body
-    stopLoss : "?",       // da req.body
-    side     : "Buy",     // da req.body.isLong | isShort
-  });
+  strategy = strategies[payload.strategyName];
+  if (!strategy) {
+    res.statusCode = 500;
+    res.end("Strategy not implemented!");
+    return;
+  }
+
+  const result = await strategy(req, api);
+
+  if (result instanceof Error) {
+    res.statusCode = 500;
+    res.end(JSON.stringify(result));
+    return;
+  }
+
+  // TODO: rispondere in maniera opportuna
+  res.statusCode = 200;
+  res.end("OK");
 }
 
 const routes = {
@@ -47,13 +67,12 @@ const routes = {
   },
 }
 
-// TODO: tipizzare come si deve
 /**
  * Send invalid route error
- * @param {http.IncomingMessage} req 
- * @param {http.ServerResponse}  res 
+ * @param {http.IncomingMessage} req Request
+ * @param {http.ServerResponse}  res Server response
  */
-function handleInvalidRoute({ req, res }) {
+function handleInvalidRoute(req, res) {
   req.statusCode = 400;
   res.end("Invalid route");
 }
@@ -69,7 +88,7 @@ class Server {
     this.httpServer = http.createServer((req, res) => {
       const map   = routes[req.method];
       const route = map ? (map[req.url] || handleInvalidRoute) : handleInvalidRoute;
-      route({ client: this.bybitClient, req, res });
+      route(req, res, api);
     });
 
     this.httpServer.listen(port, () => console.log(`Server running at http://127.0.0.1:${port}`));
