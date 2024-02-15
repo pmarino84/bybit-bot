@@ -5,7 +5,7 @@
 /**
  * Returns the symbol instruments info
  * @param {import("bybit-api").RestClientV5} client   ByBIT Client
- * @param {string}                           category Category of the account
+ * @param {import("bybit-api").CategoryV5}   category Category of the account
  * @param {string}                           symbol   Pair symbol
  * @returns {InstrumentInfo}                 the symbol info
  */
