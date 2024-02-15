@@ -1,7 +1,7 @@
 /**
  * Returns the last opened position
  * @param {import("bybit-api").RestClientV5}        client   ByBIT Client
- * @param {string}                                  category Category of the account
+ * @param {import("bybit-api").CategoryV5}          category Category of the account
  * @param {string}                                  symbol   Pair symbol
  * @returns {import("bybit-api").PositionV5 | null} the last position opened
  */

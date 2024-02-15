@@ -1,4 +1,5 @@
-const http = require("http");
+const http   = require("http");
+const BotApi = require("./api/index.js");
 
 // TODO: tipizzare come si deve
 /**
@@ -60,6 +61,7 @@ function handleInvalidRoute({ req, res }) {
 class Server {
   constructor(bybitClient) {
     this.bybitClient = bybitClient;
+    this.api         = new BotApi(this.bybitClient);
     this.httpServer  = null;
   }
 

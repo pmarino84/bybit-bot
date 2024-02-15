@@ -1,8 +1,8 @@
 /**
  * Returns the ticker info
- * @param {import("bybit-api").RestClientV5}            client ByBIT Client
- * @param {string}                                      tegory Category of the account
- * @param {string}                                      symbol Pair symbol
+ * @param {import("bybit-api").RestClientV5}            client   ByBIT Client
+ * @param {string}                                      category Category of the account
+ * @param {string}                                      symbol   Pair symbol
  * @returns {import("bybit-api").TickerLinearInverseV5} the ticker info
  */
 async function getTicker(client, category, symbol) {
