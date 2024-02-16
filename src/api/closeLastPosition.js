@@ -1,4 +1,5 @@
-const findLastPosition = require("./findLastPosition");
+const CloseLastPositionError = require("../errors/CloseLastPositionError");
+const findLastPosition       = require("./findLastPosition");
 
 /**
  * 
@@ -22,7 +23,7 @@ async function closeLastPosition(client, symbol) {
   };
 
   const response  = await client.submitOrder(orderData);
-  if(response.retCode != 0) return Error("CloseLastPositionError");
+  if(response.retCode != 0) return new CloseLastPositionError(symbol, orderData, response);
 
   const data      = response.result;
 

@@ -1,3 +1,5 @@
+const GetLastPositionError = require("../errors/GetLastPositionError");
+
 /**
  * Returns the last opened position
  * @param {import("bybit-api").RestClientV5}        client   ByBIT Client
@@ -8,7 +10,7 @@
 async function findLastPosition(client, category, symbol) {
   const response = await client.getPositionInfo({ category, symbol });
 
-  if (response.retCode !== 0) return new Error("GetLastPositionError");
+  if (response.retCode !== 0) return new GetLastPositionError(symbol, response);
 
   const positions = response.result.list;
 

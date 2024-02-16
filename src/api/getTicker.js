@@ -1,3 +1,5 @@
+const GetTickerError = require("../errors/GetTickerError");
+
 /**
  * Returns the ticker info
  * @param {import("bybit-api").RestClientV5}            client   ByBIT Client
@@ -8,7 +10,7 @@
 async function getTicker(client, category, symbol) {
   const response = await client.getTickers({ category, symbol });
 
-  if (response.retCode !== 0) return new Error("GetTickerError");
+  if (response.retCode !== 0) return new GetTickerError(symbol, response);
 
   const ticker = response.result.list[0];
 

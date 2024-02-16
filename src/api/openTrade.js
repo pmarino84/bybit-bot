@@ -1,3 +1,4 @@
+const OpenTradeError   = require("../errors/OpenTradeError");
 const calcQuantity     = require("./calcQuantity");
 const getCoinBalance   = require("./getCoinBalance");
 const getSymbolInfo    = require("./getSymbolInfo");
@@ -33,7 +34,7 @@ async function openTrade(client, payload) {
   
   const response = await client.submitOrder(orderData);
 
-  if (response.retCode != 0) return new Error("OpenTradeError");
+  if (response.retCode != 0) return new OpenTradeError(payload, orderData, response);
 
   const data     = response.result;
 
