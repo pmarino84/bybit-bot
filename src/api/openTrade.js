@@ -24,7 +24,7 @@ async function openTrade(client, payload) {
   const orderData  = {
     category : "linear",
     orderType: "Market",
-    side     : payload.isLong ? "Buy" : "Sell",
+    side     : payload.side,
     symbol   : payload.symbol,
     // price    : payload.entryPrice, // se entro a mercato non serve
     stopLoss : payload.stopLossPrice,
