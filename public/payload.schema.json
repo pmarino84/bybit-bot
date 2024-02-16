@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "http://127.0.0.1:3030/payload.schema.json",
+  "title": "Payload",
+  "description": "Webhook payload",
+  "type": "object",
+  "properties": {
+    "accountId": {
+      "description": "Account identifier. USefull for subaccount",
+      "type": "string"
+    },
+    "apiKey": {
+      "description": "Api key to interact with the bot | MAKE IT REQUIRED!!!!!!",
+      "type": "string"
+    },
+    "strategyName": {
+      "decription": "Name of the strategy that want to use",
+      "type": "string"
+    },
+    "symbol": {
+      "description": "Order pair symbol",
+      "type": "string"
+    },
+    "balanceCoin": {
+      "description": "Wallet balance coin to use for the trade",
+      "type": "string"
+    },
+    "percOfEquity": {
+      "description": "Percent of equity for the trade",
+      "type": "number",
+      "default": 100
+    },
+    "entryPrice": {
+      "description": "Order entry price",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "exitPrice": {
+      "description": "Order exit price",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "stoplossPrice": {
+      "description": "Order stoploss price",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "takeprofitPrice": {
+      "description": "Order takeprofit price",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "side": {
+      "description": "Order side. `Buy` or `Sell`",
+      "type": "string",
+      "enum": ["Buy", "Sell"]
+    },
+    "isExit": {
+      "desdcription": "True when need to close the current opened position",
+      "type": "boolean"
+    }
+  },
+  "required": ["strategyName", "symbol", "balanceCoin", "entryPrice", "stoplossPrice", "side"],
+  "dependentRequired": {
+    "isExit": ["exitPrice"]
+  }
+}
