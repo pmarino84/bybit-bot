@@ -1,4 +1,6 @@
+const fs     = require("fs");
 const http   = require("http");
+const path   = require("path");
 const BotApi = require("./api/index.js");
 
 /**
@@ -63,8 +65,44 @@ const routes = {
     ['/healthcheck']: handleGetHealtCheck,
   },
   ['post']: {
-    ['/webhook']: handleWebhook,
+    ['/webhook']    : handleWebhook,
   },
+}
+
+const STATIC_PATH = path.join(process.cwd(), "public");
+
+const MIME_TYPES = {
+  default: "application/octet-stream",
+  html   : "text/html; charset=UTF-8",
+  js     : "application/javascript",
+  css    : "text/css",
+  png    : "image/png",
+  jpg    : "image/jpg",
+  gif    : "image/gif",
+  ico    : "image/x-icon",
+  svg    : "image/svg+xml",
+};
+
+/**
+ * Send invalid route error
+ * @param {http.IncomingMessage} req Request
+ * @param {http.ServerResponse}  res Server response
+ */
+async function handleStaticFiles(req, res) {
+  const paths      = [STATIC_PATH, req.url];
+  if (req.url.endsWith("/")) paths.push("index.html");
+
+  const filePath   = path.join(...paths);
+  const fileExist  = await fs.promises.access(filePath).then(() => true, () => false);
+  const streamPath = fileExist ? filePath : path.join(STATIC_PATH, "/404.html");
+  const extension  = path.extname(streamPath).substring(1).toLowerCase();
+  const stream     = fs.createReadStream(streamPath);
+
+  const statusCode = fileExist ? 200 : 404;
+  const mimeType   = MIME_TYPES[extension] || MIME_TYPES.default;
+  const headers    = { "Content-Type": mimeType };
+  res.writeHead(statusCode, headers);
+  stream.pipe(res);
 }
 
 /**
@@ -73,8 +111,24 @@ const routes = {
  * @param {http.ServerResponse}  res Server response
  */
 function handleInvalidRoute(req, res) {
-  req.statusCode = 400;
+  res.statusCode = 400;
   res.end("Invalid route");
+}
+
+/**
+ * Return the route handler by request url
+ * @param {http.IncomingMessage} req Request
+ */
+function findRouter(req) {
+  const map  = routes[req.method];
+  let router = map ? map[req.url] : null;
+  if (router) return router;
+
+  if (req.method.toLowerCase() == "get") {
+    return handleStaticFiles;
+  }
+
+  return handleInvalidRoute;
 }
 
 class Server {
@@ -86,9 +140,8 @@ class Server {
 
   listen(port) {
     this.httpServer = http.createServer((req, res) => {
-      const map   = routes[req.method];
-      const route = map ? (map[req.url] || handleInvalidRoute) : handleInvalidRoute;
-      route(req, res, api);
+      router = findRouter(req);
+      router(req, res, api);
     });
 
     this.httpServer.listen(port, () => console.log(`Server running at http://127.0.0.1:${port}`));
