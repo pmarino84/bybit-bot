@@ -27,9 +27,9 @@ async function openTrade(client, payload) {
     orderType: "Market",
     side     : payload.side,
     symbol   : payload.symbol,
-    // price    : payload.entryPrice, // se entro a mercato non serve
-    stopLoss : payload.stopLossPrice,
-    qty      : quantity,
+    // price    : String(payload.entryPrice), // se entro a mercato non serve
+    stopLoss : String(payload.stopLossPrice),
+    qty      : String(quantity),
   };
   
   const response = await client.submitOrder(orderData);

@@ -13,7 +13,7 @@ async function closeLastPosition(client, symbol) {
 
   const orderData = {
     symbol        : position.symbol,
-    qty           : position.size,
+    qty           : String(position.size),
     positionIdx   : position.positionIdx,
     side          : position.side == "Buy" ? "Sell" : "Buy",
     category      : "linear",

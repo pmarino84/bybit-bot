@@ -1,11 +1,14 @@
 const GetLastPositionError = require("../errors/GetLastPositionError");
+const parseFieldsAsNumber  = require("../utils/parseFieldsAsNumber");
+
+const FIELD_TO_PARSE_AS_NUMBER = ["size", "avgPrice", "positionValue", "markPrice", "liqPrice", "bustPrice", "takeProfit", "stopLoss", "unrealisedPnl", "cumRealisedPnl"];
 
 /**
  * Returns the last opened position
- * @param {import("bybit-api").RestClientV5}        client   ByBIT Client
- * @param {import("bybit-api").CategoryV5}          category Category of the account
- * @param {string}                                  symbol   Pair symbol
- * @returns {import("bybit-api").PositionV5 | null} the last position opened
+ * @param   {import("bybit-api").RestClientV5}       client   ByBIT Client
+ * @param   {import("bybit-api").CategoryV5}         category Category of the account
+ * @param   {string}                                 symbol   Pair symbol
+ * @returns {import("../../global").Position | null}          the last position opened
  */
 async function findLastPosition(client, category, symbol) {
   const response = await client.getPositionInfo({ category, symbol });
@@ -19,6 +22,6 @@ async function findLastPosition(client, category, symbol) {
 
   const lastPosition = positions.sort((a, b) => a.createdTime - b.createdTime)[0]; // TODO: attento sono stringhe
 
-  return lastPosition;
+  return parseFieldsAsNumber(lastPosition, FIELD_TO_PARSE_AS_NUMBER);
 }
 module.exports = findLastPosition;

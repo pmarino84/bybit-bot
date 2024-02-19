@@ -1,4 +1,29 @@
-const GetTickerError = require("../errors/GetTickerError");
+const GetTickerError      = require("../errors/GetTickerError");
+const parseFieldsAsNumber = require("../utils/parseFieldsAsNumber");
+
+const FIELD_TO_PARSE_AS_NUMBER = [
+  "lastPrice",
+  "indexPrice",
+  "markPrice",
+  "prevPrice24h",
+  "price24hPcnt",
+  "highPrice24h",
+  "lowPrice24h",
+  "prevPrice1h",
+  "openInterest",
+  "openInterestValue",
+  "turnover24h",
+  "volume24h",
+  "fundingRate",
+  "nextFundingTime",
+  "predictedDeliveryPrice",
+  "basisRate",
+  "deliveryFeeRate",
+  "ask1Size",
+  "bid1Price",
+  "ask1Price",
+  "bid1Size",
+];
 
 /**
  * Returns the ticker info
@@ -14,6 +39,6 @@ async function getTicker(client, category, symbol) {
 
   const ticker = response.result.list[0];
 
-  return ticker;
+  return parseFieldsAsNumber(ticker, FIELD_TO_PARSE_AS_NUMBER);
 }
 module.exports = getTicker;
